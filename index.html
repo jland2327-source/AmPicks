@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PrimePicks | Curated Amazon Best Sellers</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        amazon: {
+                            orange: '#FF9900',
+                            orangeHover: '#e68a00',
+                            navy: '#232F3E',
+                            lightNavy: '#37475A',
+                            slate: '#F3F3F3',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300..900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            background-color: #f3f3f3;
+        }
+        .amazon-gradient {
+            background: linear-gradient(to bottom, #232F3E, #37475A);
+        }
+        .hidden { display: none; }
+        
+        section { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .product-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .product-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+
+        .rating-stars {
+            color: #FF9900;
+        }
+
+        .search-bar-container {
+            flex: 1;
+            max-width: 700px;
+        }
+
+        @media (max-width: 640px) {
+            .hero-title { font-size: 2.25rem; line-height: 1.1; }
+        }
+    </style>
+</head>
+<body class="bg-amazon-slate dark:bg-zinc-950 text-slate-900 dark:text-zinc-100 transition-colors duration-300">
+
+    <!-- NAVIGATION -->
+    <nav class="sticky top-0 z-50 bg-amazon-navy text-white transition-colors">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row items-center gap-4 py-3 md:h-20">
+                <!-- Logo -->
+                <button onclick="navigateTo('home')" class="flex items-center gap-2 hover:opacity-90 transition-all shrink-0">
+                    <div class="w-10 h-10 bg-amazon-orange rounded-lg flex items-center justify-center text-amazon-navy shadow-lg">
+                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L1 21h22L12 2zm0 4l7.5 13H4.5L12 6z"/></svg>
+                    </div>
+                    <div class="flex flex-col items-start leading-none">
+                        <span class="text-xl font-black tracking-tighter">PrimePicks</span>
+                        <span class="text-[9px] uppercase tracking-widest text-amazon-orange font-bold">Best Of Amazon</span>
+                    </div>
+                </button>
+
+                <!-- Search Mockup -->
+                <div class="search-bar-container w-full px-2">
+                    <div class="relative flex items-center w-full">
+                        <input type="text" placeholder="Search curated best sellers..." class="w-full bg-white dark:bg-zinc-800 text-slate-900 dark:text-white rounded-l-md px-4 py-2.5 outline-none text-sm border-none">
+                        <button class="bg-amazon-orange hover:bg-amazon-orangeHover px-5 py-2.5 rounded-r-md transition-colors text-amazon-navy">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Desktop Links -->
+                <div class="hidden lg:flex items-center space-x-6">
+                    <button onclick="navigateTo('home')" class="nav-link text-xs font-bold uppercase tracking-widest hover:text-amazon-orange transition-colors" data-page="home">Home</button>
+                    <button onclick="navigateTo('deals')" class="nav-link text-xs font-bold uppercase tracking-widest text-slate-300 hover:text-amazon-orange" data-page="deals">Today's Deals</button>
+                    <button onclick="navigateTo('picks')" class="nav-link text-xs font-bold uppercase tracking-widest text-slate-300 hover:text-amazon-orange" data-page="picks">Top Picks</button>
+                    <button onclick="toggleTheme()" class="p-2 text-slate-300 hover:text-amazon-orange transition-colors">
+                        <svg id="sun-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707M12 5a7 7 0 100 14 7 7 0 000-14z"/></svg>
+                        <svg id="moon-icon" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9 9 0 0012 21a9 9 0 008.354-5.646z"/></svg>
+                    </button>
+                </div>
+                
+                <button onclick="toggleMobileMenu()" class="lg:hidden p-2 text-slate-300 absolute right-4 top-4">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"/></svg>
+                </button>
+            </div>
+        </div>
+        <!-- Subnav -->
+        <div class="bg-amazon-lightNavy text-white py-2 text-[11px] font-bold uppercase tracking-wider overflow-x-auto whitespace-nowrap scrollbar-hide">
+            <div class="max-w-7xl mx-auto px-4 flex gap-6">
+                <button class="hover:border-white border-transparent border py-1 px-2">Best Sellers</button>
+                <button class="hover:border-white border-transparent border py-1 px-2">Amazon Basics</button>
+                <button class="hover:border-white border-transparent border py-1 px-2">Prime Video</button>
+                <button class="hover:border-white border-transparent border py-1 px-2">Electronics</button>
+                <button class="hover:border-white border-transparent border py-1 px-2">Home & Kitchen</button>
+                <button class="hover:border-white border-transparent border py-1 px-2">Fashion</button>
+            </div>
+        </div>
+        <div id="mobile-menu" class="hidden lg:hidden bg-amazon-navy border-t border-slate-700">
+            <div class="px-4 py-6 space-y-4">
+                <button onclick="navigateTo('home')" class="block w-full text-left px-4 py-2 text-sm font-bold uppercase tracking-widest">Home</button>
+                <button onclick="navigateTo('deals')" class="block w-full text-left px-4 py-2 text-sm font-bold uppercase tracking-widest">Today's Deals</button>
+                <button onclick="navigateTo('picks')" class="block w-full text-left px-4 py-2 text-sm font-bold uppercase tracking-widest">Top Picks</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- PAGE: HOME -->
+    <section id="page-home" class="page-section">
+        <!-- Hero Banner -->
+        <div class="relative h-[400px] md:h-[500px] overflow-hidden">
+            <div class="absolute inset-0">
+                <img src="https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?auto=format&fit=crop&q=85&w=2400" alt="Shopping Experience" class="w-full h-full object-cover">
+                <div class="absolute inset-0 bg-gradient-to-t from-amazon-slate via-transparent to-transparent"></div>
+            </div>
+            <div class="relative z-10 max-w-7xl mx-auto px-4 pt-16 md:pt-24 text-center md:text-left">
+                <div class="max-w-2xl bg-white/10 backdrop-blur-md p-8 rounded-2xl border border-white/20">
+                    <span class="inline-block bg-amazon-orange text-amazon-navy px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest mb-4">Trending Now</span>
+                    <h1 class="hero-title text-4xl md:text-6xl font-black text-white mb-4 drop-shadow-lg">
+                        Smart Picks for <br/> <span class="text-amazon-orange">Smart Living.</span>
+                    </h1>
+                    <p class="text-lg text-slate-100 mb-8 max-w-lg leading-relaxed drop-shadow-md">
+                        We scan thousands of reviews to bring you the top 1% of products that are actually worth your money.
+                    </p>
+                    <button onclick="navigateTo('picks')" class="px-8 py-3 bg-amazon-orange hover:bg-amazon-orangeHover text-amazon-navy font-bold rounded-lg transition-all shadow-xl shadow-orange-500/20">Shop The Collection</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Category Grid -->
+        <div class="max-w-7xl mx-auto px-4 -mt-20 relative z-20 grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div onclick="navigateTo('picks')" class="bg-white dark:bg-zinc-800 p-6 rounded-xl shadow-lg cursor-pointer hover:shadow-xl transition-all">
+                <h3 class="font-bold mb-4 text-sm uppercase tracking-tight">Home & Decor</h3>
+                <img src="https://images.unsplash.com/photo-1513519245088-0e12902e35ca?auto=format&fit=crop&q=80&w=400" class="w-full h-32 object-cover rounded-md mb-4" alt="Home Decor">
+                <span class="text-xs text-blue-600 hover:underline">Explore now</span>
+            </div>
+            <div onclick="navigateTo('picks')" class="bg-white dark:bg-zinc-800 p-6 rounded-xl shadow-lg cursor-pointer hover:shadow-xl transition-all">
+                <h3 class="font-bold mb-4 text-sm uppercase tracking-tight">Fitness Tech</h3>
+                <img src="https://images.unsplash.com/photo-1557333610-90ee4a951ecf?auto=format&fit=crop&q=80&w=400" class="w-full h-32 object-cover rounded-md mb-4" alt="Fitness Tech">
+                <span class="text-xs text-blue-600 hover:underline">See top picks</span>
+            </div>
+            <div onclick="navigateTo('picks')" class="bg-white dark:bg-zinc-800 p-6 rounded-xl shadow-lg cursor-pointer hover:shadow-xl transition-all">
+                <h3 class="font-bold mb-4 text-sm uppercase tracking-tight">Kitchen Essentials</h3>
+                <img src="https://images.unsplash.com/photo-1556910103-1c02745aae4d?auto=format&fit=crop&q=80&w=400" class="w-full h-32 object-cover rounded-md mb-4" alt="Kitchen">
+                <span class="text-xs text-blue-600 hover:underline">Shop deals</span>
+            </div>
+            <div onclick="navigateTo('picks')" class="bg-white dark:bg-zinc-800 p-6 rounded-xl shadow-lg cursor-pointer hover:shadow-xl transition-all">
+                <h3 class="font-bold mb-4 text-sm uppercase tracking-tight">Electronics</h3>
+                <img src="https://images.unsplash.com/photo-1526733169345-84245620150d?auto=format&fit=crop&q=80&w=400" class="w-full h-32 object-cover rounded-md mb-4" alt="Electronics">
+                <span class="text-xs text-blue-600 hover:underline">Best of 2025</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- PAGE: TOP PICKS (Product Grid) -->
+    <section id="page-picks" class="page-section hidden py-16">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
+                <div>
+                    <span class="text-amazon-orange font-black uppercase tracking-widest text-xs">Curated Selection</span>
+                    <h2 class="text-3xl md:text-4xl font-black mt-2">The Best Picks of 2025</h2>
+                    <p class="text-slate-500 mt-2">Highly rated items with over 4.5+ star reviews.</p>
+                </div>
+                <div class="flex gap-2">
+                    <button class="bg-white dark:bg-zinc-800 px-4 py-2 rounded border border-slate-200 dark:border-zinc-700 text-xs font-bold">Filter</button>
+                    <button class="bg-white dark:bg-zinc-800 px-4 py-2 rounded border border-slate-200 dark:border-zinc-700 text-xs font-bold">Sort By</button>
+                </div>
+            </div>
+            
+            <div id="product-grid" class="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                <!-- Injected by JS -->
+            </div>
+        </div>
+    </section>
+
+    <!-- PAGE: DEALS -->
+    <section id="page-deals" class="page-section hidden py-16 bg-white dark:bg-zinc-900">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="bg-red-50 dark:bg-red-950/20 p-12 rounded-[2.5rem] border-2 border-dashed border-red-200 dark:border-red-900/50 text-center">
+                <span class="text-red-600 font-black uppercase tracking-[0.2em] text-sm">Limited Time Offers</span>
+                <h2 class="text-4xl md:text-5xl font-black mt-4 mb-6">Today's Lightning Deals</h2>
+                <p class="text-slate-600 dark:text-slate-400 mb-10 max-w-xl mx-auto">These deals expire in hours. Grab them before they are gone forever!</p>
+                <div id="deals-grid" class="grid md:grid-cols-3 gap-8">
+                    <!-- Injected by JS -->
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="bg-amazon-navy text-white pt-20 pb-10">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="grid md:grid-cols-4 gap-12 mb-16">
+                <div class="col-span-2">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-10 h-10 bg-amazon-orange rounded-lg flex items-center justify-center">
+                            <svg class="w-6 h-6 text-amazon-navy" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L1 21h22L12 2zm0 4l7.5 13H4.5L12 6z"/></svg>
+                        </div>
+                        <span class="text-2xl font-black italic">PrimePicks</span>
+                    </div>
+                    <p class="text-slate-400 max-w-sm mb-6 leading-relaxed">PrimePicks is a participant in the Amazon Services LLC Associates Program, an affiliate advertising program designed to provide a means for sites to earn advertising fees by advertising and linking to Amazon.com.</p>
+                </div>
+                <div>
+                    <h4 class="font-black mb-6 uppercase tracking-widest text-xs text-amazon-orange">Discover</h4>
+                    <ul class="space-y-3 text-slate-400 text-sm">
+                        <li><button onclick="navigateTo('home')" class="hover:text-amazon-orange">Home</button></li>
+                        <li><button onclick="navigateTo('picks')" class="hover:text-amazon-orange">Top Picks</button></li>
+                        <li><button onclick="navigateTo('deals')" class="hover:text-amazon-orange">Today's Deals</button></li>
+                        <li><button class="hover:text-amazon-orange">Buying Guides</button></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-black mb-6 uppercase tracking-widest text-xs text-amazon-orange">Newsletter</h4>
+                    <p class="text-slate-400 text-sm mb-4">Get the top 10 deals of the week in your inbox.</p>
+                    <div class="flex gap-2">
+                        <input type="email" placeholder="Email" class="bg-amazon-lightNavy rounded px-3 py-2 text-xs w-full outline-none">
+                        <button class="bg-amazon-orange text-amazon-navy px-4 py-2 rounded text-xs font-bold">Join</button>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-slate-700 pt-10 text-center">
+                <p class="text-[10px] uppercase tracking-widest font-bold text-slate-500">&copy; 2025 PrimePicks Curations. Powered by Amazon Data.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const PRODUCT_DATA = [
+            { 
+                id: 1,
+                name: "Sony WH-1000XM5 Headphones", 
+                category: "Electronics", 
+                price: "$348.00",
+                rating: 4.8,
+                reviews: "15,240",
+                badge: "Top Pick",
+                image: "https://images.unsplash.com/photo-1618366712277-721612c6686d?auto=format&fit=crop&q=80&w=600"
+            },
+            { 
+                id: 2,
+                name: "Apple Watch Series 9", 
+                category: "Electronics", 
+                price: "$399.00",
+                rating: 4.9,
+                reviews: "8,920",
+                badge: "Amazon's Choice",
+                image: "https://images.unsplash.com/photo-1544117518-2b46abc3b9bb?auto=format&fit=crop&q=80&w=600"
+            },
+            { 
+                id: 3,
+                name: "Ninja Air Fryer AF101", 
+                category: "Kitchen", 
+                price: "$89.99",
+                rating: 4.8,
+                reviews: "45,300",
+                badge: "Best Seller",
+                image: "https://images.unsplash.com/photo-1632148763021-be396d19488a?auto=format&fit=crop&q=80&w=600"
+            },
+            { 
+                id: 4,
+                name: "Kindle Paperwhite (16 GB)", 
+                category: "Electronics", 
+                price: "$149.99",
+                rating: 4.7,
+                reviews: "22,100",
+                badge: "Editors Choice",
+                image: "https://images.unsplash.com/photo-1594980596270-27a140e40245?auto=format&fit=crop&q=80&w=600"
+            },
+            { 
+                id: 5,
+                name: "Stanley Quencher H2.0", 
+                category: "Kitchen", 
+                price: "$45.00",
+                rating: 4.9,
+                reviews: "12,400",
+                badge: "Viral Pick",
+                image: "https://images.unsplash.com/photo-1610398010032-0212822720a4?auto=format&fit=crop&q=80&w=600"
+            },
+            { 
+                id: 6,
+                name: "Herman Miller Aeron Chair", 
+                category: "Home Office", 
+                price: "$1,295.00",
+                rating: 4.8,
+                reviews: "3,200",
+                badge: "Premium Pick",
+                image: "https://images.unsplash.com/photo-1589363412213-394747c9444d?auto=format&fit=crop&q=80&w=600"
+            },
+            { 
+                id: 7,
+                name: "YETI Tundra 45 Cooler", 
+                category: "Outdoor", 
+                price: "$325.00",
+                rating: 4.9,
+                reviews: "6,500",
+                badge: "Durable",
+                image: "https://images.unsplash.com/photo-1597843797221-0818318e4726?auto=format&fit=crop&q=80&w=600"
+            },
+            { 
+                id: 8,
+                name: "Casper Original Mattress", 
+                category: "Home", 
+                price: "$995.00",
+                rating: 4.6,
+                reviews: "18,400",
+                badge: "Best Sleep",
+                image: "https://images.unsplash.com/photo-1505691723518-36a5ac3be353?auto=format&fit=crop&q=80&w=600"
+            }
+        ];
+
+        const DEALS_DATA = [
+            { name: "Fitbit Charge 6", oldPrice: "$159.99", newPrice: "$129.95", discount: "19% OFF" },
+            { name: "Echo Pop", oldPrice: "$39.99", newPrice: "$17.99", discount: "55% OFF" },
+            { name: "Bose SoundLink", oldPrice: "$129.00", newPrice: "$99.00", discount: "23% OFF" }
+        ];
+
+        function navigateTo(pageId) {
+            document.querySelectorAll('.page-section').forEach(section => section.classList.add('hidden'));
+            const target = document.getElementById('page-' + pageId);
+            if (target) target.classList.remove('hidden');
+            
+            updateNavHighlight(pageId);
+
+            if (pageId === 'picks') renderProducts();
+            if (pageId === 'deals') renderDeals();
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            document.getElementById('mobile-menu').classList.add('hidden');
+        }
+
+        function updateNavHighlight(pageId) {
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('text-amazon-orange');
+                link.classList.add('text-slate-300');
+                if (link.getAttribute('data-page') === pageId) {
+                    link.classList.add('text-amazon-orange');
+                    link.classList.remove('text-slate-300');
+                }
+            });
+        }
+
+        function toggleTheme() {
+            const html = document.documentElement;
+            html.classList.toggle('dark');
+            const isDark = html.classList.contains('dark');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            updateThemeIcons(isDark);
+        }
+
+        function updateThemeIcons(isDark) {
+            const sun = document.getElementById('sun-icon');
+            const moon = document.getElementById('moon-icon');
+            if (isDark) {
+                sun.classList.remove('hidden');
+                moon.classList.add('hidden');
+            } else {
+                sun.classList.add('hidden');
+                moon.classList.remove('hidden');
+            }
+        }
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        }
+
+        function renderProducts() {
+            const grid = document.getElementById('product-grid');
+            if (!grid) return;
+            grid.innerHTML = PRODUCT_DATA.map(p => `
+                <div class="product-card bg-white dark:bg-zinc-800 rounded-lg overflow-hidden border border-slate-200 dark:border-zinc-700 flex flex-col">
+                    <div class="relative h-56 overflow-hidden bg-slate-50 group">
+                        <img src="${p.image}" alt="${p.name}" class="w-full h-full object-contain p-4 mix-blend-multiply dark:mix-blend-normal transition-transform duration-500 group-hover:scale-110">
+                        <span class="absolute top-3 left-3 bg-amazon-orange text-amazon-navy text-[9px] font-black uppercase px-2 py-1 rounded-sm shadow-sm">${p.badge}</span>
+                    </div>
+                    <div class="p-6 flex-grow flex flex-col">
+                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">${p.category}</span>
+                        <h3 class="font-bold text-sm mb-2 line-clamp-2 min-h-[40px]">${p.name}</h3>
+                        <div class="flex items-center gap-1 mb-3">
+                            <div class="flex text-amazon-orange">
+                                ${Array(5).fill('<svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.980 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>').join('')}
+                            </div>
+                            <span class="text-[10px] text-blue-600 font-medium hover:underline cursor-pointer">${p.reviews}</span>
+                        </div>
+                        <div class="mt-auto">
+                            <div class="text-xl font-bold text-slate-900 dark:text-white mb-4">${p.price}</div>
+                            <a href="#" target="_blank" class="block w-full text-center py-2.5 bg-amazon-orange hover:bg-amazon-orangeHover text-amazon-navy font-bold rounded-full text-xs transition-all">View on Amazon</a>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderDeals() {
+            const grid = document.getElementById('deals-grid');
+            if (!grid) return;
+            grid.innerHTML = DEALS_DATA.map(d => `
+                <div class="bg-white dark:bg-zinc-800 p-8 rounded-2xl shadow-md text-left flex flex-col items-center">
+                    <div class="w-full h-40 bg-slate-100 dark:bg-zinc-900 rounded-lg mb-6 flex items-center justify-center">
+                        <svg class="w-12 h-12 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M7 11h10M7 15h10M7 7h10M4 3h16a1 1 0 011 1v16a1 1 0 01-1 1H4a1 1 0 01-1-1V4a1 1 0 011-1z"/></svg>
+                    </div>
+                    <span class="text-[10px] font-black bg-red-600 text-white px-2 py-1 rounded mb-4">${d.discount}</span>
+                    <h4 class="font-bold text-slate-900 dark:text-white text-center mb-2">${d.name}</h4>
+                    <div class="flex items-center gap-2 mb-6">
+                        <span class="text-slate-400 line-through text-xs">${d.oldPrice}</span>
+                        <span class="text-xl font-black text-red-600">${d.newPrice}</span>
+                    </div>
+                    <button class="w-full bg-amazon-navy text-white py-2 rounded-lg text-xs font-bold hover:bg-amazon-lightNavy">Claim Deal</button>
+                </div>
+            `).join('');
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            if (savedTheme === 'dark') document.documentElement.classList.add('dark');
+            updateThemeIcons(document.documentElement.classList.contains('dark'));
+            navigateTo('home');
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,7 @@
+{
+  "name": "PrimePicks | Amazon's Best Finds",
+  "description": "Discover the most highly-rated and trending products on Amazon, curated by experts.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
